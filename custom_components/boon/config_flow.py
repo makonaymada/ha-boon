@@ -17,6 +17,7 @@ from .const import (
     CONF_TOKEN,
     CONF_REFRESH_TOKEN,
     CONF_USER_ID,
+    CONF_INVITE_CODE,
     CONF_CUSTOM_CAMERAS,
 )
 
@@ -98,6 +99,14 @@ class BoonConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 await self.async_set_unique_id(user_id)
                 self._abort_if_unique_id_configured()
 
+                # If user entered an invite code, link the intercom/apartment immediately
+                invite_code = user_input.get(CONF_INVITE_CODE, "").strip()
+                if invite_code:
+                    try:
+                        await self._api.async_link_intercom(invite_code, name="Home Assistant")
+                    except Exception as err:
+                        _LOGGER.warning("Could not auto-link intercom with invite code %s: %s", invite_code, err)
+
                 # Fetch devices to set informative title
                 title = f"Boon ({self._phone_number})"
                 try:
@@ -131,6 +140,7 @@ class BoonConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         schema = vol.Schema(
             {
                 vol.Required(CONF_OTP_CODE): str,
+                vol.Optional(CONF_INVITE_CODE, default=""): str,
             }
         )
 

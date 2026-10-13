@@ -7,6 +7,7 @@ CONF_OTP_CODE = "otp_code"
 CONF_TOKEN = "token"
 CONF_REFRESH_TOKEN = "refresh_token"
 CONF_USER_ID = "user_id"
+CONF_INVITE_CODE = "invite_code"
 CONF_CUSTOM_CAMERAS = "custom_cameras"
 
 API_BASE_URL = "https://api.boon.systems:8081"

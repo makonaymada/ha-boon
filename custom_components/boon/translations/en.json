@@ -13,7 +13,8 @@
         "title": "Verify SMS Code",
         "description": "Enter the 5 or 6 digit verification code sent via SMS to {phone_number}.",
         "data": {
-          "otp_code": "SMS Verification Code"
+          "otp_code": "SMS Verification Code",
+          "invite_code": "Apartment Invite Code (optional, e.g. A1B2C3)"
         }
       }
     },

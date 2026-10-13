@@ -203,6 +203,27 @@ class BoonApiClient:
         _LOGGER.info("Successfully sent open door signal to %s/%s (%s)", vendor, vendor_id, endpoint)
         return True
 
+    async def async_link_intercom(self, code: str, name: str = "Home Assistant", flat_number: int | None = None) -> dict[str, Any]:
+        """Link an intercom or flat to the account using an invite code."""
+        # 1. Fetch intercom address metadata for this code if needed
+        flat_num = flat_number
+        if flat_num is None:
+            try:
+                info_res = await self.async_request("GET", f"{API_BASE_URL}/api/intercoms?code={code}")
+                flat_num = info_res.get("data", {}).get("flatNumber", None)
+            except Exception:
+                flat_num = None
+
+        url = f"{API_BASE_URL}/api/intercoms/link"
+        body = {
+            "code": code,
+            "name": name,
+            "flatNumber": flat_num,
+        }
+        res = await self.async_request("PUT", url, json_body=body)
+        _LOGGER.info("Successfully linked intercom via code %s for flat %s", code, flat_num)
+        return res
+
     async def async_get_history(self, page: int = 0, size: int = 20) -> list[dict[str, Any]]:
         """Fetch intercom call and door history from Boon API."""
         url = f"{API_BASE_URL}/api/history?page={page}&size={size}"
