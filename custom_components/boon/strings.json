@@ -1,0 +1,42 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Boon Smart Home Authentication",
+        "description": "Enter your phone number registered in Boon (e.g., +374XXXXXXXX).\n\n💡 **Mobile App Session Note**: Boon may invalidate existing active mobile sessions when a new login occurs with the same phone number. If you actively use the Boon mobile app, consider using a secondary phone number invited to your apartment in Boon to keep both active simultaneously.\n\nYou can also optionally register additional camera URLs (e.g. from other accounts or shared intercom links).",
+        "data": {
+          "phone_number": "Phone Number (with country code)",
+          "custom_cameras": "Additional Camera URLs (optional, one per line)"
+        }
+      },
+      "otp": {
+        "title": "Verify SMS Code",
+        "description": "Enter the 5 or 6 digit verification code sent via SMS to {phone_number}.",
+        "data": {
+          "otp_code": "SMS Verification Code"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to Boon cloud servers. Please check your network.",
+      "invalid_phone_format": "Phone number must start with '+' and include country code (e.g., +374XXXXXXXX).",
+      "invalid_code": "Invalid or expired verification code. Please try again.",
+      "rate_limit": "Too many verification requests. Please wait a few minutes before trying again.",
+      "unknown": "Unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "This Boon account is already configured in Home Assistant."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Boon Integration Options",
+        "description": "Manage additional RTSP or HTTP camera stream URLs (one per line, format: 'Name = rtsp://...' or just 'rtsp://...').",
+        "data": {
+          "custom_cameras": "Additional Camera URLs"
+        }
+      }
+    }
+  }
+}
