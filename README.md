@@ -35,7 +35,7 @@ Enables seamless control of your building entrance intercoms, gate buzzers, live
 ### Method 1: Via HACS (Recommended)
 
 1. Ensure [HACS](https://hacs.xyz/) is installed in your Home Assistant.
-2. In Home Assistant, open **HACS** > **Integrations** > Three dots menu (top right) > **Custom repositories**.
+2. In Home Assistant, open **HACS** > Integrations > Three dots menu (top right) > **Custom repositories**.
 3. Enter Repository URL: `https://github.com/makonaymada/ha-boon`
 4. Category: **Integration**
 5. Click **Add**, locate **Boon Smart Home**, and click **Download**.
