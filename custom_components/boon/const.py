@@ -15,6 +15,8 @@ DEVICE_BASE_URL = "https://elevators-api.boon.systems/v2"
 HEADER_ORIGIN_APP = "Boon"
 DEFAULT_USER_AGENT = "okhttp/4.12.0"
 
-DEFAULT_SCAN_INTERVAL_SECONDS = 60
+DEFAULT_SCAN_INTERVAL_SECONDS = 30
+
+EVENT_BOON_CALL = "boon_intercom_call"
 
 PLATFORMS = ["button", "lock", "camera", "sensor"]

@@ -40,7 +40,10 @@ async def async_setup_entry(
         if meta.get("offlineCode"):
             entities.append(BoonOfflineCodeSensor(coordinator, entry, vendor_id, vendor))
 
-    # 3. Flat balance sensor
+        # 3. Last Intercom Call / Ring sensor
+        entities.append(BoonLastCallSensor(coordinator, entry, vendor_id, vendor))
+
+    # 4. Flat balance sensor
     flats = coordinator.data.get("flats", [])
     if flats:
         entities.append(BoonFlatBalanceSensor(coordinator, entry, flats[0]))
@@ -146,3 +149,61 @@ class BoonFlatBalanceSensor(SensorEntity):
         if flats:
             return flats[0].get("balance")
         return None
+
+
+class BoonLastCallSensor(BoonBaseDeviceEntity, SensorEntity):
+    """Sensor reporting the most recent intercom call to the apartment."""
+
+    _attr_icon = "mdi:phone-incoming"
+
+    def __init__(
+        self,
+        coordinator: BoonDataUpdateCoordinator,
+        entry: ConfigEntry,
+        vendor_id: str,
+        vendor: str,
+    ) -> None:
+        """Initialize last call sensor."""
+        super().__init__(coordinator, entry, vendor_id, vendor)
+        name = self.device_data.get("name", "Intercom")
+        self._attr_name = f"{name} Last Call"
+        self._attr_unique_id = f"boon_{self.vendor_id}_last_call"
+
+    @property
+    def _latest_call(self) -> dict[str, Any] | None:
+        """Return the most recent call record for this intercom or flat."""
+        history = self.coordinator.data.get("history", [])
+        if not history:
+            return None
+        for item in history:
+            if item.get("intercomId") == self.vendor_id or not item.get("intercomId"):
+                return item
+        return history[0]
+
+    @property
+    def native_value(self) -> str | None:
+        """Return timestamp of the latest call."""
+        latest = self._latest_call
+        if latest:
+            return latest.get("callTime")
+        return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return rich metadata about the last call."""
+        latest = self._latest_call
+        if not latest:
+            return {}
+
+        was_opened = bool(latest.get("doorOpenTime"))
+        return {
+            "call_id": latest.get("id"),
+            "call_time": latest.get("callTime"),
+            "door_open_time": latest.get("doorOpenTime"),
+            "opened": was_opened,
+            "opened_by": latest.get("openedByName"),
+            "screenshot_url": latest.get("screenShotUrl"),
+            "intercom_name": latest.get("intercomName"),
+            "flat_number": latest.get("address", {}).get("flatNumber", None),
+        }
+

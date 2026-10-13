@@ -50,6 +50,15 @@ async def async_setup_entry(
                     snapshot_url=snapshot_url,
                 )
             )
+            # Add Last Caller Snapshot Camera
+            entities.append(
+                BoonLastCallerSnapshotCamera(
+                    coordinator,
+                    entry,
+                    vendor_id,
+                    vendor,
+                )
+            )
 
     # 2. Custom Manually Registered Cameras (from options or config flow)
     custom_cameras_str = entry.options.get(
@@ -157,3 +166,71 @@ class BoonCustomCamera(Camera):
     async def stream_source(self) -> str | None:
         """Return the stream URL."""
         return self._stream_url
+
+
+class BoonLastCallerSnapshotCamera(BoonBaseDeviceEntity, Camera):
+    """Camera entity showing the photo snapshot captured during the last intercom call."""
+
+    def __init__(
+        self,
+        coordinator: BoonDataUpdateCoordinator,
+        entry: ConfigEntry,
+        vendor_id: str,
+        vendor: str,
+    ) -> None:
+        """Initialize last caller snapshot camera."""
+        BoonBaseDeviceEntity.__init__(self, coordinator, entry, vendor_id, vendor)
+        Camera.__init__(self)
+
+        dev_name = self.device_data.get("name", "Entrance")
+        self._attr_name = f"{dev_name} Last Caller Snapshot"
+        self._attr_unique_id = f"boon_{self.vendor_id}_last_caller_snapshot"
+
+    @property
+    def _latest_call(self) -> dict[str, Any] | None:
+        """Return the most recent call record for this intercom."""
+        history = self.coordinator.data.get("history", [])
+        if not history:
+            return None
+        for item in history:
+            if item.get("intercomId") == self.vendor_id or not item.get("intercomId"):
+                return item
+        return history[0]
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return attributes of the last call snapshot."""
+        latest = self._latest_call
+        if not latest:
+            return {}
+        return {
+            "call_id": latest.get("id"),
+            "call_time": latest.get("callTime"),
+            "opened_by": latest.get("openedByName"),
+            "door_open_time": latest.get("doorOpenTime"),
+            "screenshot_url": latest.get("screenShotUrl"),
+        }
+
+    async def async_camera_image(
+        self, width: int | None = None, height: int | None = None
+    ) -> bytes | None:
+        """Fetch the snapshot image from AWS S3 stored for the last call."""
+        latest = self._latest_call
+        if not latest:
+            return None
+
+        url = latest.get("screenShotUrl")
+        if not url:
+            return None
+
+        session = async_get_clientsession(self.hass)
+        try:
+            async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                if resp.status == 200:
+                    return await resp.read()
+                _LOGGER.debug("Last call snapshot returned HTTP %s", resp.status)
+        except Exception as err:
+            _LOGGER.debug("Error fetching last call snapshot: %s", err)
+
+        return None
+

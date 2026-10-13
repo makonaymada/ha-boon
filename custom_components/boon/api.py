@@ -202,3 +202,18 @@ class BoonApiClient:
         await self.async_request("POST", url, json_body={})
         _LOGGER.info("Successfully sent open door signal to %s/%s (%s)", vendor, vendor_id, endpoint)
         return True
+
+    async def async_get_history(self, page: int = 0, size: int = 20) -> list[dict[str, Any]]:
+        """Fetch intercom call and door history from Boon API."""
+        url = f"{API_BASE_URL}/api/history?page={page}&size={size}"
+        try:
+            res = await self.async_request("GET", url)
+            if isinstance(res, dict):
+                return res.get("data", [])
+            if isinstance(res, list):
+                return res
+            return []
+        except Exception as err:
+            _LOGGER.debug("Could not fetch Boon history: %s", err)
+            return []
+
