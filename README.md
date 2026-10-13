@@ -1,7 +1,7 @@
 # Boon Smart Home Integration for Home Assistant
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/default)
-[![GitHub Release](https://img.shields.io/github/v/release/makonaymada/ha-boon)](https://github.com/makonaymada/ha-boon/releases)
+[![Release](https://img.shields.io/github/v/tag/makonaymada/ha-boon?label=release)](https://github.com/makonaymada/ha-boon/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A native Home Assistant custom component integration for **Boon Smart Home** (`boon.city` / Sputnik systems).
