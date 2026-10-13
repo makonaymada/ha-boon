@@ -97,6 +97,20 @@ class BoonOpenDoorButton(BoonBaseDeviceEntity, ButtonEntity):
         self._attr_name = f"{name} Unlock"
         self._attr_unique_id = f"boon_{self.vendor_id}_unlock"
 
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return extra state attributes including offline access code."""
+        meta = self.device_data.get("meta", {})
+        code = meta.get("offlineCode")
+        flat = meta.get("address", {}).get("flatNumber", None)
+        attrs: dict[str, Any] = {}
+        if code:
+            attrs["offline_code"] = code
+            attrs["keypad_code"] = code
+            attrs["tooltip"] = f"Keypad code: #{flat} {code}"
+            attrs["instructions"] = f"To unlock manually on the intercom keypad, enter: #{flat} followed by {code}"
+        return attrs
+
     async def async_press(self) -> None:
         """Handle button press to unlock door."""
         _LOGGER.info("Unlocking Boon door: %s (%s)", self.vendor_id, self.vendor)

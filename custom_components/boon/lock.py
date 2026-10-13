@@ -57,6 +57,20 @@ class BoonDoorLock(BoonBaseDeviceEntity, LockEntity):
         self._attr_is_locked = True
         self._attr_is_unlocking = False
 
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return extra state attributes including offline access code."""
+        meta = self.device_data.get("meta", {})
+        code = meta.get("offlineCode")
+        flat = meta.get("address", {}).get("flatNumber", None)
+        attrs: dict[str, Any] = {}
+        if code:
+            attrs["offline_code"] = code
+            attrs["keypad_code"] = code
+            attrs["tooltip"] = f"Keypad code: #{flat} {code}"
+            attrs["instructions"] = f"To unlock manually on the intercom keypad, enter: #{flat} followed by {code}"
+        return attrs
+
     async def async_unlock(self, **kwargs: Any) -> None:
         """Unlock the entrance door via Boon API and auto-relock after buzzer delay."""
         _LOGGER.info("Unlocking Boon lock entity: %s", self.vendor_id)
